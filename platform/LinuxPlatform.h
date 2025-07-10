@@ -6,10 +6,14 @@
 
 class LinuxPlatformLayer : public PlatformLayer {
 public:
+    static LinuxPlatformLayer& getInstance() {
+        static LinuxPlatformLayer instance;
+        return instance;
+    }
     LinuxPlatformLayer();
 
     void createWindow(const char* title, int minWidth, int minHeight, int width, int height) override;
-    std::vector<Event*>& handleInput() override;
+    std::vector<Event*> handleInput() override;
     void render() override;
     void shutdown() override;
     void drawRectangle(int x, int y, int width, int height) override;

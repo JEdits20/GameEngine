@@ -19,7 +19,6 @@ LinuxPlatformLayer::~LinuxPlatformLayer(){
 
 
 void LinuxPlatformLayer::createWindow(const char* title, int minWidth, int minHeight, int width, int height) {
-    display = XOpenDisplay(nullptr);
     if (!display) {
         std::cerr << "Unable to open X display" << std::endl;
         return;
@@ -30,6 +29,7 @@ void LinuxPlatformLayer::createWindow(const char* title, int minWidth, int minHe
     XStoreName(display, window, title);
     XSelectInput(display, window, ExposureMask | KeyPressMask | ButtonPressMask);
     XMapWindow(display, window);
+    isRunning = true;
 
     std::thread inputThread([this]() {
         while (isRunning) {
@@ -49,7 +49,7 @@ void LinuxPlatformLayer::createWindow(const char* title, int minWidth, int minHe
     inputThread.detach();
 }
 
-std::vector<Event *> &LinuxPlatformLayer::handleInput() {
+std::vector<Event*> LinuxPlatformLayer::handleInput() {
     std::vector<Event*> tempEvents = events;
     events.clear();
     return tempEvents;

@@ -2,9 +2,9 @@
 #define EVENT_H
 
 enum class EventType {
-  KeyPress,
-  Quit,
-  MouseClick
+  KeyEvent,
+  QuitEvent,
+  MouseEvent
 };
 
 class Event {
@@ -17,7 +17,7 @@ class KeyPressEvent : public Event {
   public:
     explicit KeyPressEvent(int key) : key(key) {}
     [[nodiscard]] EventType getType() const override {
-        return EventType::KeyPress;
+        return EventType::KeyEvent;
     }
   private:
     int key;
@@ -27,7 +27,7 @@ class QuitEvent : public Event {
   public:
     QuitEvent() = default;
     [[nodiscard]] EventType getType() const override {
-        return EventType::Quit;
+        return EventType::QuitEvent;
     }
 };
 
@@ -35,7 +35,7 @@ class MouseClickEvent : public Event {
   public:
     MouseClickEvent(int x, int y) : x(x), y(y) {}
     [[nodiscard]] EventType getType() const override {
-        return EventType::MouseClick;
+        return EventType::MouseEvent;
     }
   private:
     int x, y;

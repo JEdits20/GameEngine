@@ -20,6 +20,20 @@ elseif(UNIX)
     set(PLATFORM_SOURCES
             platform/LinuxPlatform.cpp
             platform/LinuxPlatform.h
+            ui/Drawable.cpp
+            ui/Drawable.h
+            ui/clickable/Clickable.cpp
+            ui/clickable/Clickable.h
+            ui/nonInteractive/Menu.cpp
+            ui/nonInteractive/Menu.h
+            ui/clickable/clickables/Button.cpp
+            ui/clickable/clickables/Button.h
+            ui/clickable/clickables/Slider.cpp
+            ui/clickable/clickables/Slider.h
+            ui/text/TextBox.cpp
+            ui/text/TextBox.h
+            ui/basics/RoundRect.cpp
+            ui/basics/RoundRect.h
     )
 endif()
 

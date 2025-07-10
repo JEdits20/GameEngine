@@ -14,6 +14,7 @@ public:
   virtual void shutdown() = 0;
   virtual void drawRectangle(int x, int y, int width, int height) = 0;
 protected:
+  PlatformLayer() = default;
   bool isRunning = false;
   std::vector<Event*> events;
 };

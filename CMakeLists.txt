@@ -11,7 +11,6 @@ add_executable(GameEngine main.cpp
         platform/WindowsPlatform.h
         platform/LinuxPlatform.h
         platform/LinuxPlatform.cpp
-        platform/Singelton.h
 )
 
 if(WIN32)

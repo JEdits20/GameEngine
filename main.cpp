@@ -61,45 +61,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nShowCmd) {
 #else
 
 #include <X11/Xlib.h>
+
+#include "platform/LinuxPlatform.h"
+
 int main() {
-    Display* display = XOpenDisplay(NULL);
-    if (display == NULL) {
-        std::cerr << "Cannot open display" << std::endl;
-        return 1;
-    }
-
-    int screen = DefaultScreen(display);
-    Window window = XCreateSimpleWindow(display, RootWindow(display, screen), 10, 10, 400, 300, 1,
-                                        BlackPixel(display, screen), WhitePixel(display, screen));
-
-    XStoreName(display, window, "Event Handling Example");
-    XSelectInput(display, window, ExposureMask | KeyPressMask | ButtonPressMask);
-    XMapWindow(display, window);
-
-    std::vector<Event*> events;
-
-    XEvent event;
+    LinuxPlatformLayer::getInstance().createWindow("test", 100, 100, 400, 400);
+    LinuxPlatformLayer::getInstance().drawRectangle(50,50,150,150);
     while (true) {
-        XNextEvent(display, &event);
-        if (event.type == Expose) {
-        } else if (event.type == KeyPress) {
-            events.push_back(new KeyPressEvent(event.xkey.keycode));
-        } else if (event.type == ButtonPress) {
-            events.push_back(new MouseClickEvent(event.xbutton.x, event.xbutton.y));
-        } else if (event.type == ClientMessage) {
-            events.push_back(new QuitEvent());
-            break;
+        for (Event* event: LinuxPlatformLayer::getInstance().handleInput()) {
+            Game::getInstance().handleEvent(*event);
         }
-
-        for (const auto& e : events) {
-            Game::getInstance().handleEvent(*e);
-            delete e;
-        }
-        events.clear();
     }
-
-    XDestroyWindow(display, window);
-    XCloseDisplay(display);
-    return 0;
 }
 #endif

@@ -7,7 +7,11 @@ add_executable(GameEngine main.cpp
         game/Event.h
         game/Game.cpp
         game/Game.h
-        windows/window.cpp
+        platform/PlatformLayer.h
+        platform/WindowsPlatform.h
+        platform/LinuxPlatform.h
+        platform/LinuxPlatform.cpp
+        platform/Singelton.h
 )
 
 if(WIN32)

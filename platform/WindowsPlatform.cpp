@@ -60,6 +60,7 @@ void WindowsPlatformLayer::createWindow(const char* title, int minWidth, int min
 
 std::vector<Event *> WindowsPlatformLayer::handleInput() {
     MSG msg;
+    events.clear();
     while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
         if (msg.message == WM_QUIT) {
             events.push_back(new QuitEvent());

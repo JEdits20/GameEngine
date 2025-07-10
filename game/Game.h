@@ -1,5 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
+#include <memory>
+
 #include "Event.h"
 
 class Game {
@@ -8,8 +10,9 @@ class Game {
       static Game instance;
       return instance;
     }
+    void update();
     ~Game();
-    void handleEvent(const Event& event);
+    void handleEvent(const std::unique_ptr<Event>& eventPtr);
   private:
     Game();
 };

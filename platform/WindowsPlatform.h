@@ -18,8 +18,8 @@ public:
     ~WindowsPlatformLayer();
 
     void createWindow(const char* title, int minWidth, int minHeight, int width, int height) override;
-    std::vector<Event*> handleInput() override;
-    void pushEvent(Event* event);
+    std::vector<std::unique_ptr<Event>>& handleInput() override;
+    void pushEvent(const std::unique_ptr<Event> &event);
     void render() override;
     void shutdown() override;
     void drawRectangle(int x, int y, int width, int height) override;

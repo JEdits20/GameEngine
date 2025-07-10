@@ -37,25 +37,19 @@ void LinuxPlatformLayer::createWindow(const char* title, int minWidth, int minHe
             XNextEvent(display, &event);
             if (event.type == Expose) {
             } else if (event.type == KeyPress) {
-                events.push_back(new KeyPressEvent(event.xkey.keycode));
+                events.push_back(std::make_unique<KeyPressEvent>(event.xkey.keycode));
             } else if (event.type == ButtonPress) {
-                events.push_back(new MouseClickEvent(event.xbutton.x, event.xbutton.y));
+                events.push_back(std::make_unique<MouseClickEvent>(event.xbutton.x, event.xbutton.y));
             } else if (event.type == ClientMessage) {
-                events.push_back(new QuitEvent());
-                break;
+                events.push_back(std::make_unique<QuitEvent>());
             }
         }
     });
-    inputThread.detach();
 }
 
-std::vector<Event*> LinuxPlatformLayer::handleInput() {
-    std::vector<Event*> tempEvents = events;
-    events.clear();
-    return tempEvents;
+std::vector<std::unique_ptr<Event>>& LinuxPlatformLayer::handleInput() {
+    return events;
 }
-
-
 
 void LinuxPlatformLayer::render() {
     //TODO
@@ -63,6 +57,7 @@ void LinuxPlatformLayer::render() {
 
 void LinuxPlatformLayer::shutdown() {
     isRunning = false;
+    if (inputThread.joinable()) inputThread.join();
     if (display) {
         XDestroyWindow(display, window);
         XCloseDisplay(display);

@@ -3,14 +3,29 @@ project(GameEngine)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(GameEngine main.cpp
-        game/Event.h
+set(COMMON_SOURCES
+        main.cpp
         game/Game.cpp
         game/Game.h
+        game/Event.h
         platform/PlatformLayer.h
-        platform/WindowsPlatform.h
-        platform/LinuxPlatform.h
-        platform/LinuxPlatform.cpp
+)
+
+if(WIN32)
+    set(PLATFORM_SOURCES
+            platform/WindowsPlatform.cpp
+            platform/WindowsPlatform.h
+    )
+elseif(UNIX)
+    set(PLATFORM_SOURCES
+            platform/LinuxPlatform.cpp
+            platform/LinuxPlatform.h
+    )
+endif()
+
+add_executable(GameEngine
+        ${COMMON_SOURCES}
+        ${PLATFORM_SOURCES}
 )
 
 if(WIN32)

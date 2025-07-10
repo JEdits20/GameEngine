@@ -5,6 +5,7 @@
 
 #include "game/Game.h"
 #ifdef _WIN32
+#include "platform/WindowsPlatform.h"
 #include <windows.h>
 #else
 #include "platform/LinuxPlatform.h"
@@ -14,7 +15,6 @@ int main() {
     constexpr int targetFPS = 60;
     constexpr int frameDuration = 1000 / targetFPS;
     #ifdef _WIN32
-    #include "platform/WindowsPlatform.h"
     PlatformLayer* platformLayer = &WindowsPlatformLayer::getInstance();
     #else
     PlatformLayer* platformLayer = &LinuxPlatformLayer::getInstance();

@@ -7,19 +7,26 @@
 
 class WindowsPlatformLayer : public PlatformLayer {
 public:
+    static WindowsPlatformLayer& getInstance() {
+        static WindowsPlatformLayer instance;
+        return instance;
+    }
+    WindowsPlatformLayer& operator=(const WindowsPlatformLayer&) = delete;
+    WindowsPlatformLayer(const WindowsPlatformLayer&) = delete;
+
     WindowsPlatformLayer();
     ~WindowsPlatformLayer();
 
-    void CreateWindow(const char* title, int minWidth, int minHeight, int width, int height) override;
-    std::vector<Event*>& HandleInput() override;
-    void Render() override;
-    void Shutdown() override;
-    void DrawRectangle(int x, int y, int width, int height) override;
+    void createWindow(const char* title, int minWidth, int minHeight, int width, int height) override;
+    std::vector<Event*> handleInput() override;
+    void pushEvent(Event* event);
+    void render() override;
+    void shutdown() override;
+    void drawRectangle(int x, int y, int width, int height) override;
 
 private:
     HWND hwnd;
     HDC hdc;
-    bool isRunning;
 };
 
 #endif //WINDOWSPLATFORM_H

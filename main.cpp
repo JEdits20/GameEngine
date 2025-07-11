@@ -11,6 +11,17 @@
 #include "platform/LinuxPlatform.h"
 #endif
 
+bool eventHandling(PlatformLayer* platformLayer) {
+    while (auto eventPtr = platformLayer->handleInput()) {
+        if (eventPtr->getType() == EventType::QuitEvent) {
+            platformLayer->shutdown();
+            return true;
+        }
+        Game::getInstance().handleEvent(eventPtr);
+    }
+    return false;
+}
+
 int main() {
     constexpr int targetFPS = 60;
     constexpr int frameDuration = 1000 / targetFPS;
@@ -25,14 +36,7 @@ int main() {
     while (true) {
         auto frameStart = std::chrono::high_resolution_clock::now();
 
-        for (auto& eventPtr : platformLayer->handleInput()) {
-            if (!eventPtr) continue;
-            if (eventPtr->getType() == EventType::MouseEvent) {
-                platformLayer->shutdown();
-                break;
-            }
-            Game::getInstance().handleEvent(eventPtr);
-        }
+        if (eventHandling(platformLayer)) break;
         Game::getInstance().update();
         platformLayer->render();
         auto frameEnd = std::chrono::high_resolution_clock::now();

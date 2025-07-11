@@ -27,7 +27,7 @@ WindowsPlatformLayer::~WindowsPlatformLayer() {
 }
 
 void WindowsPlatformLayer::pushEvent(const std::unique_ptr<Event> &event) {
-    events.push_back(event);
+    eventQueue.push(event);
 }
 
 
@@ -59,18 +59,17 @@ void WindowsPlatformLayer::createWindow(const char* title, int minWidth, int min
     isRunning = true;
 }
 
-std::vector<std::unique_ptr<Event>>& WindowsPlatformLayer::handleInput() {
-    MSG msg;
-    events.clear();
-    while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+std::unique_ptr<Event> WindowsPlatformLayer::handleInput() {
+    if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
         if (msg.message == WM_QUIT) {
             events.push_back(new QuitEvent());
             isRunning = false;
         }
         TranslateMessage(&msg);
         DispatchMessage(&msg);
+        return eventQueue.pop();
     }
-    return events;
+    return nullptr;
 }
 
 void WindowsPlatformLayer::render() {

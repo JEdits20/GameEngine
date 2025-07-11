@@ -15,7 +15,7 @@ public:
     LinuxPlatformLayer();
     ~LinuxPlatformLayer() override;
     void createWindow(const char* title, int minWidth, int minHeight, int width, int height) override;
-    std::vector<std::unique_ptr<Event>>& handleInput() override;
+    std::unique_ptr<Event> handleInput() override;
     void render() override;
     void shutdown() override;
     void drawRectangle(int x, int y, int width, int height) override;

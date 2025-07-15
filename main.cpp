@@ -1,8 +1,8 @@
 #include <vector>
-#include "game/Event.h"
 #include <thread>
 #include <chrono>
 
+#include "game/Event.h"
 #include "game/Game.h"
 #ifdef _WIN32
 #include "platform/WindowsPlatform.h"
@@ -10,6 +10,17 @@
 #else
 #include "platform/LinuxPlatform.h"
 #endif
+
+bool eventHandling(PlatformLayer* platformLayer) {
+    while (auto eventPtr = platformLayer->handleInput()) {
+        if (eventPtr->getType() == EventType::QuitEvent) {
+            platformLayer->shutdown();
+            return true;
+        }
+        Game::getInstance().handleEvent(eventPtr);
+    }
+    return false;
+}
 
 int main() {
     constexpr int targetFPS = 60;
@@ -25,10 +36,9 @@ int main() {
     while (true) {
         auto frameStart = std::chrono::high_resolution_clock::now();
 
-        for (Event* event : platformLayer->handleInput()) {
-            Game::getInstance().handleEvent(*event);
-            delete event;
-        }
+        if (eventHandling(platformLayer)) break;
+        Game::getInstance().update();
+        platformLayer->render();
         auto frameEnd = std::chrono::high_resolution_clock::now();
 
         std::chrono::duration<double, std::milli> frameTime = frameEnd - frameStart;

@@ -1,18 +1,19 @@
 #include "WindowsPlatform.h"
 #include <iostream>
+#include <memory>
 
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     auto& platform = WindowsPlatformLayer::getInstance();
     switch (uMsg) {
         case WM_DESTROY:
-            platform.pushEvent(new QuitEvent());
+            platform.pushEvent(std::make_unique<QuitEvent>());
             PostQuitMessage(0);
             return 0;
         case WM_KEYDOWN:
-            platform.pushEvent(new KeyPressEvent(static_cast<int>(wParam)));
+            platform.pushEvent(std::make_unique<KeyPressEvent>(static_cast<int>(wParam)));
             return 0;
         case WM_LBUTTONDOWN:
-            platform.pushEvent(new MouseClickEvent(LOWORD(lParam), HIWORD(lParam)));
+            platform.pushEvent(std::make_unique<MouseClickEvent>(LOWORD(lParam), HIWORD(lParam)));
             return 0;
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -25,8 +26,8 @@ WindowsPlatformLayer::~WindowsPlatformLayer() {
     shutdown();
 }
 
-void WindowsPlatformLayer::pushEvent(Event *event) {
-    events.push_back(event);
+void WindowsPlatformLayer::pushEvent(const std::unique_ptr<Event> &event) {
+    eventQueue.push(event);
 }
 
 
@@ -58,18 +59,17 @@ void WindowsPlatformLayer::createWindow(const char* title, int minWidth, int min
     isRunning = true;
 }
 
-std::vector<Event *> WindowsPlatformLayer::handleInput() {
-    MSG msg;
-    events.clear();
-    while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+std::unique_ptr<Event> WindowsPlatformLayer::handleInput() {
+    if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
         if (msg.message == WM_QUIT) {
             events.push_back(new QuitEvent());
             isRunning = false;
         }
         TranslateMessage(&msg);
         DispatchMessage(&msg);
+        return eventQueue.pop();
     }
-    return events;
+    return nullptr;
 }
 
 void WindowsPlatformLayer::render() {

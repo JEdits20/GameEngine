@@ -9,6 +9,7 @@ set(COMMON_SOURCES
         game/Game.h
         game/Event.h
         platform/PlatformLayer.h
+        platform/SPSCQueue.h
 )
 
 if(WIN32)

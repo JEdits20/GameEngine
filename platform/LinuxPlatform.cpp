@@ -13,7 +13,10 @@ LinuxPlatformLayer::LinuxPlatformLayer() {
     }
 }
 
-LinuxPlatformLayer::~LinuxPlatformLayer(){
+LinuxPlatformLayer::~LinuxPlatformLayer() {
+    if (inputThread.joinable() && std::this_thread::get_id() != inputThread.get_id()) {
+        inputThread.join();
+    }
     LinuxPlatformLayer::shutdown();
 }
 
@@ -26,46 +29,58 @@ void LinuxPlatformLayer::createWindow(const char* title, int minWidth, int minHe
 
     int screen = DefaultScreen(display);
     window = XCreateSimpleWindow(display, RootWindow(display, screen), 10, 10, width, height, 1, BlackPixel(display, screen), WhitePixel(display, screen));
+    if (!window) {
+        std::cerr << "Unable to create X Window" << std::endl;
+        return;
+    }
     XStoreName(display, window, title);
     XSelectInput(display, window, ExposureMask | KeyPressMask | ButtonPressMask);
     XMapWindow(display, window);
-    isRunning = true;
-
-    std::thread inputThread([this]() {
-        while (isRunning) {
-            XEvent event;
-            XNextEvent(display, &event);
-            if (event.type == Expose) {
-            } else if (event.type == KeyPress) {
-                events.push_back(new KeyPressEvent(event.xkey.keycode));
-            } else if (event.type == ButtonPress) {
-                events.push_back(new MouseClickEvent(event.xbutton.x, event.xbutton.y));
-            } else if (event.type == ClientMessage) {
-                events.push_back(new QuitEvent());
-                break;
+    isRunning.store(true);
+    inputThread = std::thread([this]() {
+        try {
+            while (isRunning) {
+                XEvent event;
+                try {
+                    if (XPending(display) > 0) XNextEvent(display, &event);
+                } catch (...) {
+                    std::cerr << "X11 threw an error. Possibly invalid or closed display.\n";
+                    break;
+                }
+                if (event.type == Expose) {
+                } else if (event.type == KeyPress) {
+                    eventQueue.push(std::make_unique<KeyPressEvent>(event.xkey.keycode));
+                } else if (event.type == ButtonPress) {
+                    eventQueue.push(std::make_unique<MouseClickEvent>(event.xbutton.x, event.xbutton.y));
+                } else if (event.type == ClientMessage) {
+                    eventQueue.push(std::make_unique<QuitEvent>());
+                }
             }
+        } catch (const std::exception &e) {
+            std::cerr << "Input thread exception: " << e.what() << std::endl;
+        } catch (...) {
+            std::cerr << "Input thread unknown exception" << std::endl;
         }
     });
-    inputThread.detach();
 }
 
-std::vector<Event*> LinuxPlatformLayer::handleInput() {
-    std::vector<Event*> tempEvents = events;
-    events.clear();
-    return tempEvents;
+std::unique_ptr<Event> LinuxPlatformLayer::handleInput() {
+    return eventQueue.pop();
 }
-
-
 
 void LinuxPlatformLayer::render() {
     //TODO
 }
 
 void LinuxPlatformLayer::shutdown() {
-    isRunning = false;
+    if (!isRunning.exchange(false)) return;
+    if (inputThread.joinable() && std::this_thread::get_id() != inputThread.get_id()) {
+        inputThread.join();
+    }
     if (display) {
         XDestroyWindow(display, window);
         XCloseDisplay(display);
+        display = nullptr;
     }
 }
 

@@ -6,11 +6,12 @@
 #define DRAWABLE_H
 
 
+class PlatformLayer;
 
 class Drawable {
 public:
     virtual ~Drawable() = default;
-    virtual void draw();
+    virtual void draw(const PlatformLayer &platform);
 
     void setPosition(int x, int y);
 

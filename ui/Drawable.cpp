@@ -4,8 +4,12 @@
 
 #include "Drawable.h"
 
-void Drawable::draw() {
+#include "../platform/PlatformLayer.h"
 
+class PlatformLayer;
+
+void Drawable::draw(const PlatformLayer &platform) {
+    platform.drawRectangle(10,10,10,10);
 }
 
 void Drawable::setPosition(int x, int y) {

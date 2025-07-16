@@ -9,6 +9,8 @@
 class Clickable : public Drawable {
 public:
     ~Clickable() override = default;
+
+    Clickable() = default;
     bool enabled = true;
     bool hovered = false;
     int buttonClicked = 0;

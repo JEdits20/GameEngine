@@ -1,6 +1,11 @@
 #include "WindowsPlatform.h"
+
+#include <algorithm>
 #include <iostream>
 #include <memory>
+#include "../ui/clickable/clickables/Button.h"
+
+class Drawable;
 
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     auto& platform = WindowsPlatformLayer::getInstance();
@@ -26,8 +31,8 @@ WindowsPlatformLayer::~WindowsPlatformLayer() {
     shutdown();
 }
 
-void WindowsPlatformLayer::pushEvent(const std::unique_ptr<Event> &event) {
-    eventQueue.push(event);
+void WindowsPlatformLayer::pushEvent(std::unique_ptr<Event> event) {
+    eventQueue.push(std::move(event));
 }
 
 
@@ -60,9 +65,10 @@ void WindowsPlatformLayer::createWindow(const char* title, int minWidth, int min
 }
 
 std::unique_ptr<Event> WindowsPlatformLayer::handleInput() {
+    MSG msg;
     if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
         if (msg.message == WM_QUIT) {
-            events.push_back(new QuitEvent());
+            eventQueue.push(std::make_unique<QuitEvent>());
             isRunning = false;
         }
         TranslateMessage(&msg);
@@ -73,7 +79,10 @@ std::unique_ptr<Event> WindowsPlatformLayer::handleInput() {
 }
 
 void WindowsPlatformLayer::render() {
-
+    std::vector<Drawable> values = { new Button()};
+    for (Drawable drawable : values) {
+        drawable->draw(*this);
+    }
 }
 
 void WindowsPlatformLayer::shutdown() {

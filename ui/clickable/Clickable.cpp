@@ -12,7 +12,7 @@ void Clickable::onHover(bool active) {
     this->hovered = active;
 }
 
-void Clickable::draw() override {
+void Clickable::draw() {
 
 }
 
